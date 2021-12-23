@@ -15,13 +15,29 @@ var (
 )
 
 // Singleton Pattern using sync.Once to ensure that only one AlpineBlockchain is created.
+// Seeds the blockchain with a genesis block
 //
-// Returns: *AlpineBlockchain
-func InitAlpine() *AlpineBlockchain {
+// Returns: *AlpineBlockchain and error
+func InitAlpine(coins int64) (*AlpineBlockchain, error) {
+	// Create the singleton blockchain
 	once.Do(func() {
-		blockchain = &AlpineBlockchain{}
+		blockchain = &AlpineBlockchain{Circulation: coins}
 	})
-	return blockchain
+
+	// Instantiate the genesis block
+	genesis := Block{
+		Index:        0,
+		Timestamp:    time.Now(),
+		Transactions: []Transaction{},
+		Proof:        0,
+		PreviousHash: "",
+	}
+
+	err := blockchain.AddBlock(&genesis)
+	if err != nil {
+		return nil, err
+	}
+	return blockchain, nil
 }
 
 // NewTransaction() takes a sender "s" and reciever "r" as well as an amount "a" and records it into a transaction object.
@@ -46,6 +62,7 @@ func NewBlock() *Block {
 
 // Append Transaction t to *Block b
 func (b *Block) AddTransaction(t Transaction) {
+	// TODO: Create EnvVar to limit amount of transactions per block
 	b.Transactions = append(b.Transactions, t)
 }
 
