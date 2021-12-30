@@ -10,8 +10,7 @@ import (
 )
 
 var (
-	once       sync.Once
-	blockchain *AlpineBlockchain
+	once sync.Once
 )
 
 // Singleton Pattern using sync.Once to ensure that only one AlpineBlockchain is created.
@@ -19,6 +18,8 @@ var (
 //
 // Returns: *AlpineBlockchain and error
 func InitAlpine(coins int64) (*AlpineBlockchain, error) {
+	var blockchain *AlpineBlockchain
+
 	// Create the singleton blockchain
 	once.Do(func() {
 		blockchain = &AlpineBlockchain{Circulation: coins}

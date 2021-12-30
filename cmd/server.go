@@ -5,10 +5,8 @@ Copyright © 2021 michaelpeterswa
 package cmd
 
 import (
-	"github.com/michaelpeterswa/alpine/internal/blockchain"
-	"github.com/michaelpeterswa/alpine/internal/logging"
+	"github.com/michaelpeterswa/alpine/internal/server/blockchain"
 	"github.com/spf13/cobra"
-	"nw.codes/handlerr"
 )
 
 // serverCmd represents the server command
@@ -17,28 +15,7 @@ var serverCmd = &cobra.Command{
 	Short: "Start the Alpine Blockchain Server",
 	Long:  `The server for processing the Alpine blockchain.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := logging.InitZap()
-		h := handlerr.Handlerr{
-			Logger: logger,
-		}
-
-		logger.Info("alpine is starting...")
-
-		alp, err := blockchain.InitAlpine(100000)
-		h.Err("create alpine blockchain failed", err)
-
-		alp.PrintBlockchain()
-
-		tx := blockchain.NewTransaction("asdf", "sdfg", 1)
-
-		block := blockchain.NewBlock()
-
-		block.AddTransaction(tx)
-
-		err = alp.AddBlock(block)
-		h.Err("add block failed", err)
-
-		alp.PrintBlockchain()
+		blockchain.Run()
 	},
 }
 

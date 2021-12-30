@@ -24,6 +24,6 @@ type Block struct {
 // AlpineBlockchain is a structure that conains a mutex lock and the blockchain itself.
 type AlpineBlockchain struct {
 	mu          sync.Mutex
-	Circulation int64
+	Circulation int64   `json:"-"`
 	Chain       []Block `json:"blockchain"`
 }

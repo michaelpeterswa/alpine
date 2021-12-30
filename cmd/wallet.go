@@ -5,8 +5,7 @@ Copyright © 2021 michaelpeterswa
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/michaelpeterswa/alpine/internal/wallet"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +15,7 @@ var walletCmd = &cobra.Command{
 	Short: "Open the Alpenglow Wallet",
 	Long:  `Open the wallet tool used for holding and transacting Alpenglow tokens`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("wallet called")
+		wallet.Run()
 	},
 }
 
