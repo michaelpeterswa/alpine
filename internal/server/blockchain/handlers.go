@@ -1,11 +1,12 @@
 package blockchain
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"go.uber.org/zap"
+	"github.com/michaelpeterswa/alpine/internal/aerror"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,16 +15,28 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (txp *TransactionPool) NewTransactionHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	var tx Transaction
+	var tx SignedTransaction
 	err := json.NewDecoder(r.Body).Decode(&tx)
 	h.Err("failed to JSON decode request", err)
 
-	// TODO: set up for house wallet
-	if tx.Sender == "alpine" {
-		h.Logger.Warn("sender is disallowed... dropping...", zap.Any("transaction", tx))
+	if len(*tx.PublicKey) != ed25519.PublicKeySize {
+		aerror.NewErrorResponse(w, aerror.PublicKeyBadLength)
+		return
+	}
+	if len(tx.Signature) != ed25519.SignatureSize {
+		aerror.NewErrorResponse(w, aerror.SignatureBadLength)
+		return
+	}
+
+	verified, err := VerifyTransaction(tx)
+	h.Err("failed to verify transaction", err)
+
+	if verified {
+		txp.Push(tx.Tx)
+		w.WriteHeader(http.StatusCreated)
 	} else {
-		txp.Push(tx)
+		w.WriteHeader(http.StatusOK)
+		aerror.NewErrorResponse(w, aerror.FailedVerification)
 	}
 }
 

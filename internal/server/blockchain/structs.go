@@ -1,9 +1,16 @@
 package blockchain
 
 import (
+	"crypto/ed25519"
 	"sync"
 	"time"
 )
+
+type SignedTransaction struct {
+	PublicKey *ed25519.PublicKey `json:"public-key"`
+	Signature []byte             `json:"signature"`
+	Tx        Transaction        `json:"transaction"`
+}
 
 // Transaction is a simple structure that has a sender, reciever, and amount.
 type Transaction struct {

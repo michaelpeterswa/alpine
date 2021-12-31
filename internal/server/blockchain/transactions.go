@@ -41,3 +41,10 @@ func (tp *TransactionPool) List() PendingTransactions {
 
 	return pending
 }
+
+func (tp *TransactionPool) Len() int {
+	tp.mu.Lock()
+	defer tp.mu.Unlock()
+
+	return tp.txPool.Len()
+}
