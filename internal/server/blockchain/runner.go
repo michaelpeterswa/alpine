@@ -1,13 +1,18 @@
 package blockchain
 
 import (
+	"net/http"
+
+	"github.com/gorilla/mux"
 	"github.com/michaelpeterswa/alpine/internal/server/logging"
 	"nw.codes/handlerr"
 )
 
+var h handlerr.Handlerr
+
 func Run() {
 	logger := logging.InitZap()
-	h := handlerr.Handlerr{
+	h = handlerr.Handlerr{
 		Logger: logger,
 	}
 
@@ -16,16 +21,13 @@ func Run() {
 	alp, err := InitAlpine(100000)
 	h.Err("create alpine blockchain failed", err)
 
-	alp.PrintBlockchain()
+	txPool := NewTransactionPool()
 
-	tx := NewTransaction("asdf", "sdfg", 1)
+	r := mux.NewRouter()
+	r.HandleFunc("/", HomeHandler).Methods("GET")
+	r.HandleFunc("/transaction/new", txPool.NewTransactionHandler).Methods("POST")
+	r.HandleFunc("/transaction/pool", txPool.TransactionPoolHandler).Methods("GET")
+	r.HandleFunc("/blockchain", alp.BlockchainHandler).Methods("GET")
 
-	block := NewBlock()
-
-	block.AddTransaction(tx)
-
-	err = alp.AddBlock(block)
-	h.Err("add block failed", err)
-
-	alp.PrintBlockchain()
+	http.ListenAndServe("localhost:8080", r)
 }

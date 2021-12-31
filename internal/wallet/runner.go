@@ -1,6 +1,8 @@
 package wallet
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -10,6 +12,10 @@ type PageWrapper struct {
 }
 
 func Run() {
+	pubkey, privkey := GenerateEd25519KeyPair()
+	fmt.Printf("%x\n", *privkey)
+	fmt.Printf("%x\n", *pubkey)
+
 	app := tview.NewApplication()
 
 	pages := tview.NewPages()
