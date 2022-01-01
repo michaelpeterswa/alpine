@@ -15,20 +15,12 @@ var serverCmd = &cobra.Command{
 	Short: "Start the Alpine Blockchain Server",
 	Long:  `The server for processing the Alpine blockchain.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		blockchain.Run()
+		blockchain.Run(cmd)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	serverCmd.PersistentFlags().Int64P("tpb", "b", 2, "Transactions Per Block")
+	serverCmd.PersistentFlags().Int64P("circulation", "c", 10, "Coins in Circulation")
 }

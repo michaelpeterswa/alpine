@@ -25,7 +25,7 @@ func (tp *TransactionPool) Push(t Transaction) {
 	_ = tp.txPool.PushBack(t)
 }
 
-func (tp *TransactionPool) Pop(t Transaction) Transaction {
+func (tp *TransactionPool) Pop() Transaction {
 	tp.mu.Lock()
 	defer tp.mu.Unlock()
 

@@ -51,3 +51,29 @@ func (ab *AlpineBlockchain) BlockchainHandler(w http.ResponseWriter, r *http.Req
 	err := json.NewEncoder(w).Encode(ab)
 	h.Err("failed to JSON encode AlpineBlockchain", err)
 }
+
+func (ab *AlpineBlockchain) ForgeHandler(w http.ResponseWriter, r *http.Request) {
+	blk := ab.GetLastBlock()
+	prevHash, err := blk.Hash()
+	if err != nil {
+		aerror.NewErrorResponse(w, aerror.HashError)
+		return
+	}
+
+	newBlk := NewBlock()
+	newBlk.Proof = 1234
+	newBlk.PreviousHash = prevHash
+
+	for ab.TxPool.Len() > 0 {
+		err := newBlk.AddTransaction(ab.TxPool.Pop())
+		if err != nil {
+			h.Err("error adding transaction", err)
+			break
+		}
+	}
+
+	ab.AddBlock(newBlk)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(newBlk)
+}

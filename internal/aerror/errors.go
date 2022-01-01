@@ -20,6 +20,8 @@ const (
 	PublicKeyBadLength
 	// Incorrect Signature Length (64 Bytes)
 	SignatureBadLength
+	// Hashing Error
+	HashError
 )
 
 func AerrorToName(ae AlpineError) string {
@@ -32,6 +34,8 @@ func AerrorToName(ae AlpineError) string {
 		return "PublicKeyBadLength"
 	case SignatureBadLength:
 		return "SignatureBadLength"
+	case HashError:
+		return "HashError"
 	default:
 		return "NotImplemented"
 	}

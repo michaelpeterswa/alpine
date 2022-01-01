@@ -1,8 +1,6 @@
 package blockchain
 
 import (
-	"crypto/sha512"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -13,16 +11,24 @@ var (
 	once sync.Once
 )
 
+// AlpineBlockchain is a structure that conains a mutex lock and the blockchain itself.
+type AlpineBlockchain struct {
+	mu          sync.Mutex
+	Circulation int64            `json:"-"`
+	TxPool      *TransactionPool `json:"transaction-pool"`
+	Chain       []Block          `json:"blockchain"`
+}
+
 // Singleton Pattern using sync.Once to ensure that only one AlpineBlockchain is created.
 // Seeds the blockchain with a genesis block
 //
 // Returns: *AlpineBlockchain and error
-func InitAlpine(coins int64) (*AlpineBlockchain, error) {
+func InitAlpine(coins int64, txp *TransactionPool) (*AlpineBlockchain, error) {
 	var blockchain *AlpineBlockchain
 
 	// Create the singleton blockchain
 	once.Do(func() {
-		blockchain = &AlpineBlockchain{Circulation: coins}
+		blockchain = &AlpineBlockchain{Circulation: coins, TxPool: txp}
 	})
 
 	// Instantiate the genesis block
@@ -39,45 +45,6 @@ func InitAlpine(coins int64) (*AlpineBlockchain, error) {
 		return nil, err
 	}
 	return blockchain, nil
-}
-
-// NewTransaction() takes a sender "s" and reciever "r" as well as an amount "a" and records it into a transaction object.
-//
-// Returns: Transaction
-func NewTransaction(s string, r string, a float64) Transaction {
-	return Transaction{
-		Sender:   s,
-		Receiver: r,
-		Amount:   1.0,
-	}
-}
-
-// Create new *Block with current timestamp
-//
-// Returns: *Block
-func NewBlock() *Block {
-	return &Block{
-		Timestamp: time.Now(),
-	}
-}
-
-// Append Transaction t to *Block b
-func (b *Block) AddTransaction(t Transaction) {
-	// TODO: Create EnvVar to limit amount of transactions per block
-	b.Transactions = append(b.Transactions, t)
-}
-
-// SHA512 Hash of *Block b encoded to hexidecimal string for readability
-//
-// Returns: string (of hash) and error
-func (b *Block) Hash() (string, error) {
-	res, err := json.Marshal(b)
-	if err != nil {
-		return "", err
-	}
-	hash := sha512.Sum512(res)
-	strHash := hex.EncodeToString(hash[:])
-	return strHash, nil
 }
 
 // Gets the last block on *AlpineBlockchain ab, used to calculate previous hash
